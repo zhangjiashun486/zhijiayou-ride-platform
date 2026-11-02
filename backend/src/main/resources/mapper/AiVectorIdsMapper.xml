@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhijiaoyou.aichat.mapper.AiVectorIdsMapper">
+
+    <resultMap id="BaseResultMap" type="com.zhijiaoyou.aichat.entity.po.AiVectorIds">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="source_id" property="sourceId"/>
+        <result column="document_id" property="documentId"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zhijiaoyou.aichat.entity.po.AiVectorIds" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_ai_vector_ids (type, source_id, document_id)
+        VALUES (#{type}, #{sourceId}, #{documentId})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_ai_vector_ids WHERE id = #{id}
+    </select>
+
+    <select id="selectByTypeAndSourceId" resultMap="BaseResultMap">
+        SELECT * FROM t_ai_vector_ids
+        WHERE type = #{type} AND source_id = #{sourceId}
+        LIMIT 1
+    </select>
+
+    <select id="selectListByTypeAndSourceId" resultMap="BaseResultMap">
+        SELECT * FROM t_ai_vector_ids
+        WHERE type = #{type} AND source_id = #{sourceId}
+    </select>
+
+    <select id="selectByType" resultMap="BaseResultMap">
+        SELECT * FROM t_ai_vector_ids WHERE type = #{type}
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM t_ai_vector_ids WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByDocumentId">
+        DELETE FROM t_ai_vector_ids WHERE document_id = #{documentId}
+    </delete>
+
+</mapper>

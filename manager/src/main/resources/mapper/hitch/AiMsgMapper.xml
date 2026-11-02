@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.hitch.mapper.AiMsgMapper">
+    
+    <resultMap type="AiMsg" id="AiMsgResult">
+        <result property="id"    column="id"    />
+        <result property="category"    column="category"    />
+        <result property="title"    column="title"    />
+        <result property="pic"    column="pic"    />
+        <result property="content"    column="content"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectAiMsgVo">
+        select id, category, title, pic, content, create_time, update_time from t_ai_msg
+    </sql>
+
+    <select id="selectAiMsgList" parameterType="AiMsg" resultMap="AiMsgResult">
+        <include refid="selectAiMsgVo"/>
+        <where>  
+            <if test="category != null "> and category = #{category}</if>
+            <if test="title != null  and title != ''"> and title like concat('%', #{title}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectAiMsgById" parameterType="Long" resultMap="AiMsgResult">
+        <include refid="selectAiMsgVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertAiMsg" parameterType="AiMsg" useGeneratedKeys="true" keyProperty="id">
+        insert into t_ai_msg
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="category != null">category,</if>
+            <if test="title != null">title,</if>
+            <if test="pic != null">pic,</if>
+            <if test="content != null">content,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="category != null">#{category},</if>
+            <if test="title != null">#{title},</if>
+            <if test="pic != null">#{pic},</if>
+            <if test="content != null">#{content},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAiMsg" parameterType="AiMsg">
+        update t_ai_msg
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="category != null">category = #{category},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="pic != null">pic = #{pic},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAiMsgById" parameterType="Long">
+        delete from t_ai_msg where id = #{id}
+    </delete>
+
+    <delete id="deleteAiMsgByIds" parameterType="String">
+        delete from t_ai_msg where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

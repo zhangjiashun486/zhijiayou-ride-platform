@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增资讯')" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <th:block th:include="include :: summernote-css" />
+    <link th:href="@{/css/hitch-admin.css?v=20260911}" rel="stylesheet"/>
+</head>
+<body class="white-bg">
+<div class="hitch-form-wrap">
+    <div class="hitch-form-head">
+        <h3><i class="fa fa-plus-circle"></i> 新增资讯</h3>
+        <p>保存后这条资讯会通过 RabbitMQ 自动同步到 AI 知识库，用户在 AI 助手里提问时就能检索到相关内容。</p>
+    </div>
+
+    <form class="form-horizontal m" id="form-msg-add">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">分类：</label>
+            <div class="col-sm-9">
+                <select name="category" class="form-control" th:with="type=${@dict.getType('ai_msg_category')}">
+                    <option value="">请选择分类</option>
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">标题：</label>
+            <div class="col-sm-9">
+                <input name="title" class="form-control" type="text" maxlength="100" placeholder="例如：青岛三日游怎么安排？"/>
+                <p class="hitch-hint">建议 10~30 个字，写清楚这条资讯的主题。<span id="titleCount">0</span>/100</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">封面图片：</label>
+            <div class="col-sm-9">
+                <input type="hidden" name="pic">
+                <div class="file-loading">
+                    <input class="form-control file-upload" id="pic" name="file" type="file">
+                </div>
+                <p class="hitch-hint">支持 jpg / png，建议使用 16:9 的横图，图片过大会影响首页加载速度。</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">正文内容：</label>
+            <div class="col-sm-9">
+                <input type="hidden" class="form-control" name="content">
+                <div class="summernote" id="content"></div>
+                <p class="hitch-hint">正文会作为知识库内容提供给 AI，尽量写清楚事实信息（地点、价格、时间等）。</p>
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<th:block th:include="include :: summernote-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "hitch/msg";
+
+    $("#form-msg-add").validate({
+        rules: {
+            category: { required: true },
+            title: { required: true, maxlength: 100 }
+        },
+        messages: {
+            category: { required: "请选择资讯分类" },
+            title: { required: "请填写资讯标题", maxlength: "标题不能超过 100 个字" }
+        },
+        focusCleanup: true
+    });
+
+    $("input[name='title']").on('input', function () {
+        $("#titleCount").text($(this).val().length);
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            var content = $('#content').summernote('code');
+            if (!content || !content.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, '').trim()) {
+                $.modal.alertWarning("请填写正文内容");
+                return;
+            }
+            $.operate.save(prefix + "/add", $('#form-msg-add').serialize());
+        }
+    }
+
+    $(".file-upload").fileinput({
+        uploadUrl: ctx + 'common/upload',
+        maxFileCount: 1,
+        autoReplace: true
+    }).on('fileuploaded', function (event, data, previewId, index) {
+        $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+    }).on('fileremoved', function (event, id, index) {
+        $("input[name='" + event.currentTarget.id + "']").val('')
+    })
+
+    $(function() {
+        $('.summernote').summernote({
+            lang: 'zh-CN',
+            dialogsInBody: true,
+            height: 260,
+            callbacks: {
+                onChange: function(contents, $edittable) {
+                    $("input[name='" + this.id + "']").val(contents);
+                },
+                onImageUpload: function(files) {
+                    var obj = this;
+                    var data = new FormData();
+                    data.append("file", files[0]);
+                    $.ajax({
+                        type: "post",
+                        url: ctx + "common/upload",
+                        data: data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        dataType: 'json',
+                        success: function(result) {
+                            if (result.code == web_status.SUCCESS) {
+                                $('#' + obj.id).summernote('insertImage', result.url);
+                            } else {
+                                $.modal.alertError(result.msg);
+                            }
+                        },
+                        error: function(error) {
+                            $.modal.alertWarning("图片上传失败。");
+                        }
+                    });
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

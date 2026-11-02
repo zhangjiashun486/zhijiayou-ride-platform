@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhijiaoyou.aichat.mapper.ChatMessageMapper">
+<!--namespace 这个属性的值，必须和 Java 接口的完整包名+类名一模一样。Spring 启动时，MyBatis 就靠这行字知道："这个 XML 里所有的 SQL，都是给 ChatMessageMapper.java 这个接口用的-->
+    <resultMap id="BaseResultMap" type="com.zhijiaoyou.aichat.entity.ChatMessagePO">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="conversation_id" jdbcType="VARCHAR" property="conversationId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="role" jdbcType="VARCHAR" property="role"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zhijiaoyou.aichat.entity.ChatMessagePO">
+        INSERT INTO t_chat_message (id, conversation_id, user_id, role, content, created_time)
+        VALUES (#{id}, #{conversationId}, #{userId}, #{role}, #{content}, #{createdTime})
+    </insert>
+
+    <select id="selectByConversationId" resultMap="BaseResultMap">
+        SELECT id, conversation_id, user_id, role, content, created_time
+        FROM t_chat_message
+        WHERE conversation_id = #{conversationId}
+          AND user_id = #{userId}
+        ORDER BY created_time Desc
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectConversationIdsByUser" resultType="map">
+        SELECT m.conversation_id AS conversationId,
+               MAX(m.created_time) AS lastTime,
+               COUNT(*) AS messageCount,
+               (SELECT t1.content
+                  FROM t_chat_message t1
+                 WHERE t1.conversation_id = m.conversation_id
+                   AND t1.user_id = m.user_id
+                   AND t1.role = 'user'
+                 ORDER BY t1.created_time ASC
+                 LIMIT 1) AS title,
+               (SELECT t2.content
+                  FROM t_chat_message t2
+                 WHERE t2.conversation_id = m.conversation_id
+                   AND t2.user_id = m.user_id
+                 ORDER BY t2.created_time DESC
+                 LIMIT 1) AS preview
+          FROM t_chat_message m
+         WHERE m.user_id = #{userId}
+         GROUP BY m.conversation_id, m.user_id
+         ORDER BY MAX(m.created_time) DESC
+    </select>
+
+    <select id="selectByConversationIdPaged" resultMap="BaseResultMap">
+        SELECT id, conversation_id, user_id, role, content, created_time
+        FROM t_chat_message
+        WHERE conversation_id = #{conversationId}
+          AND user_id = #{userId}
+        ORDER BY created_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectUserIdByConversationId" resultType="java.lang.String">
+        SELECT user_id
+        FROM t_chat_message
+        WHERE conversation_id = #{conversationId}
+        LIMIT 1
+    </select>
+
+    <delete id="deleteByConversationId">
+        DELETE FROM t_chat_message WHERE conversation_id = #{conversationId}
+          AND user_id = #{userId}
+    </delete>
+
+    <select id="selectAllByUserId" resultMap="BaseResultMap">
+        SELECT id, conversation_id, user_id, role, content, created_time
+        FROM t_chat_message
+        WHERE user_id = #{userId}
+        ORDER BY created_time DESC
+    </select>
+
+</mapper>

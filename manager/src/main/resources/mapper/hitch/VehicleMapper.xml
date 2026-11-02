@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.hitch.mapper.VehicleMapper">
+    
+    <resultMap type="Vehicle" id="VehicleResult">
+        <result property="id"    column="id"    />
+        <result property="carNumber"    column="car_number"    />
+        <result property="carFrontPhoto"    column="car_front_photo"    />
+        <result property="carBackPhoto"    column="car_back_photo"    />
+        <result property="carSidePhoto"    column="car_side_photo"    />
+        <result property="purchaseDate"    column="purchase_date"    />
+        <result property="phone"    column="phone"    />
+        <result property="status"    column="status"    />
+        <result property="REVISION"    column="REVISION"    />
+        <result property="createdBy"    column="CREATED_BY"    />
+        <result property="createdTime"    column="CREATED_TIME"    />
+        <result property="updatedBy"    column="UPDATED_BY"    />
+        <result property="updatedTime"    column="UPDATED_TIME"    />
+    </resultMap>
+
+    <sql id="selectVehicleVo">
+        select id, car_number, car_front_photo, car_back_photo, car_side_photo, purchase_date, phone, status, REVISION, CREATED_BY, CREATED_TIME, UPDATED_BY, UPDATED_TIME from t_vehicle
+    </sql>
+
+    <select id="selectVehicleList" parameterType="Vehicle" resultMap="VehicleResult">
+        <include refid="selectVehicleVo"/>
+        <where>  
+            <if test="carNumber != null  and carNumber != ''"> and car_number = #{carNumber}</if>
+            <if test="carFrontPhoto != null  and carFrontPhoto != ''"> and car_front_photo = #{carFrontPhoto}</if>
+            <if test="carBackPhoto != null  and carBackPhoto != ''"> and car_back_photo = #{carBackPhoto}</if>
+            <if test="carSidePhoto != null  and carSidePhoto != ''"> and car_side_photo = #{carSidePhoto}</if>
+            <if test="purchaseDate != null "> and purchase_date = #{purchaseDate}</if>
+            <if test="phone != null  and phone != ''"> and phone = #{phone}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="REVISION != null "> and REVISION = #{REVISION}</if>
+            <if test="createdBy != null  and createdBy != ''"> and CREATED_BY = #{createdBy}</if>
+            <if test="createdTime != null "> and CREATED_TIME = #{createdTime}</if>
+            <if test="updatedBy != null  and updatedBy != ''"> and UPDATED_BY = #{updatedBy}</if>
+            <if test="updatedTime != null "> and UPDATED_TIME = #{updatedTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectVehicleById" parameterType="String" resultMap="VehicleResult">
+        <include refid="selectVehicleVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertVehicle" parameterType="Vehicle">
+        insert into t_vehicle
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="carNumber != null">car_number,</if>
+            <if test="carFrontPhoto != null">car_front_photo,</if>
+            <if test="carBackPhoto != null">car_back_photo,</if>
+            <if test="carSidePhoto != null">car_side_photo,</if>
+            <if test="purchaseDate != null">purchase_date,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="status != null">status,</if>
+            <if test="REVISION != null">REVISION,</if>
+            <if test="createdBy != null">CREATED_BY,</if>
+            <if test="createdTime != null">CREATED_TIME,</if>
+            <if test="updatedBy != null">UPDATED_BY,</if>
+            <if test="updatedTime != null">UPDATED_TIME,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="carNumber != null">#{carNumber},</if>
+            <if test="carFrontPhoto != null">#{carFrontPhoto},</if>
+            <if test="carBackPhoto != null">#{carBackPhoto},</if>
+            <if test="carSidePhoto != null">#{carSidePhoto},</if>
+            <if test="purchaseDate != null">#{purchaseDate},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="status != null">#{status},</if>
+            <if test="REVISION != null">#{REVISION},</if>
+            <if test="createdBy != null">#{createdBy},</if>
+            <if test="createdTime != null">#{createdTime},</if>
+            <if test="updatedBy != null">#{updatedBy},</if>
+            <if test="updatedTime != null">#{updatedTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateVehicle" parameterType="Vehicle">
+        update t_vehicle
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="carNumber != null">car_number = #{carNumber},</if>
+            <if test="carFrontPhoto != null">car_front_photo = #{carFrontPhoto},</if>
+            <if test="carBackPhoto != null">car_back_photo = #{carBackPhoto},</if>
+            <if test="carSidePhoto != null">car_side_photo = #{carSidePhoto},</if>
+            <if test="purchaseDate != null">purchase_date = #{purchaseDate},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="REVISION != null">REVISION = #{REVISION},</if>
+            <if test="createdBy != null">CREATED_BY = #{createdBy},</if>
+            <if test="createdTime != null">CREATED_TIME = #{createdTime},</if>
+            <if test="updatedBy != null">UPDATED_BY = #{updatedBy},</if>
+            <if test="updatedTime != null">UPDATED_TIME = #{updatedTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteVehicleById" parameterType="String">
+        delete from t_vehicle where id = #{id}
+    </delete>
+
+    <delete id="deleteVehicleByIds" parameterType="String">
+        delete from t_vehicle where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

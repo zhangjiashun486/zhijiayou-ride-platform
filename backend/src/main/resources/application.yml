@@ -1,0 +1,95 @@
+server:
+  port: 9999
+
+spring:
+  config:
+    import: optional:file:../.env[.properties]
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}   # 本机开发环境（MySQL 3307 + 本地 Redis + 内存向量库）
+  data:
+    mongodb:
+      host: ${MONGODB_HOST:127.0.0.1}
+      port: ${MONGODB_PORT:27017}
+      database: ${MONGODB_DATABASE:notice}
+    redis:
+      client-type: jedis
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3307}/${DB_NAME:hitch}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    druid:
+      initial-size: 10
+      min-idle: 20
+      max-active: 100
+      max-wait: 60000
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: /
+    publisher-returns: true
+    listener:
+      simple:
+        acknowledge-mode: auto
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  ai:
+    openai:
+      api-key: ${DASHSCOPE_API_KEY:}
+      base-url: ${DASHSCOPE_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+      chat:
+        options:
+          model: ${DASHSCOPE_CHAT_MODEL:qwen-plus}
+          temperature: 0.7
+      embedding:
+        options:
+          model: ${DASHSCOPE_EMBEDDING_MODEL:text-embedding-v1}
+    vectorstore:
+      redis:
+        initialize-schema: true
+        index: hitch-knowledge
+        prefix: "hitch-doc:"
+
+# MinIO
+minio:
+  url: ${MINIO_URL:http://127.0.0.1:9005}
+  host: ${MINIO_HOST:127.0.0.1}
+  port: ${MINIO_PORT:9005}
+  bucket: ${MINIO_BUCKET:hitch}
+  username: ${MINIO_USER:minioadmin}
+  password: ${MINIO_PASSWORD:minioadmin}
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.zhijiaoyou.modules.po
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+baidu:
+  apikey: ${BAIDU_API_KEY:}
+  secretkey: ${BAIDU_SECRET_KEY:}
+  map:
+    ak: ${BAIDU_MAP_AK:}
+    api: https://api.map.baidu.com/routematrix/v2/driving
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: never
+
+info:
+  app:
+    name: 智驾游 API
+    version: 2.0.0
+    description: AI 出行与顺风车业务平台

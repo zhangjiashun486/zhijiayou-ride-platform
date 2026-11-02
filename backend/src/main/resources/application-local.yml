@@ -1,0 +1,42 @@
+# 本地开发环境配置（不需要 Docker / Redis Stack）
+# 启动方式：默认已启用 local profile；如需切回课程环境，去掉 application.yml 里的 spring.profiles.active
+spring:
+  # Windows 下 JDK 自带 HttpClient 可能建立回环连接失败，改用简单的 HTTP 客户端实现
+  http:
+    client:
+      factory: simple
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3307}/${DB_NAME:hitch}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+  data:
+    redis:
+      client-type: jedis
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+    mongodb:
+      host: ${MONGODB_HOST:127.0.0.1}
+      port: ${MONGODB_PORT:27017}
+      database: ${MONGODB_DATABASE:notice}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:127.0.0.1}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        auto-startup: true
+  autoconfigure:
+    exclude:
+      # 本地没有 Redis Stack（RediSearch），改用内存向量库 SimpleVectorStore
+      - org.springframework.ai.vectorstore.redis.autoconfigure.RedisVectorStoreAutoConfiguration
+
+minio:
+  url: ${MINIO_URL:http://127.0.0.1:9005}
+  host: ${MINIO_HOST:127.0.0.1}
+  port: ${MINIO_PORT:9005}
+  bucket: ${MINIO_BUCKET:hitch}
+  username: ${MINIO_USER:minioadmin}
+  password: ${MINIO_PASSWORD:minioadmin}

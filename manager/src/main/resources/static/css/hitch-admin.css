@@ -1,0 +1,155 @@
+/* ============================================================
+   资讯库管理页面样式（msg / add / edit）
+   ============================================================ */
+
+.hitch-hero {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 10px 15px 14px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ff6b35, #ff8a5c);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(255, 107, 53, 0.22);
+}
+
+.hitch-hero__icon {
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.22);
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.hitch-hero__text h2 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.hitch-hero__text p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+    opacity: 0.92;
+}
+
+.hitch-search {
+    background: #fff;
+    border-radius: 10px;
+    margin: 0 15px 10px;
+    padding-top: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+#toolbar {
+    padding: 0 15px 10px;
+}
+
+.msg-thumb {
+    width: 64px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #eaeaea;
+    background: #f7f7f7;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    background: #f0f2f5;
+    color: #555;
+    white-space: nowrap;
+}
+
+.category-badge--1 { background: #e8f4ff; color: #1e6fd9; }
+.category-badge--2 { background: #e9f9ee; color: #1f9d55; }
+.category-badge--3 { background: #fff3e6; color: #d9730d; }
+.category-badge--4 { background: #f3ecff; color: #7c4dff; }
+
+.msg-title {
+    font-weight: 600;
+    color: #262626;
+}
+
+.msg-excerpt {
+    color: #8c8c8c;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.hitch-form-wrap {
+    padding: 0 15px 24px;
+}
+
+.hitch-form-head {
+    margin-bottom: 16px;
+    padding: 16px 18px;
+    border-left: 4px solid #ff6b35;
+    border-radius: 8px;
+    background: #fff7f3;
+}
+
+.hitch-form-head h3 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.hitch-form-head p {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #999;
+}
+
+.hitch-hint {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #9aa0a6;
+}
+
+.hitch-preview__img {
+    width: 100%;
+    max-height: 280px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 14px;
+}
+
+.hitch-preview__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: #999;
+}
+
+.hitch-preview__title {
+    margin: 0 0 12px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.hitch-preview__content {
+    line-height: 1.85;
+    color: #444;
+    word-break: break-word;
+}
+
+.hitch-preview__content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}

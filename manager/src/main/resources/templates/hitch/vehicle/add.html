@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增车辆信息')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-vehicle-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">车牌号：</label>
+                <div class="col-sm-8">
+                    <input name="carNumber" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">车牌前部照片：</label>
+                <div class="col-sm-8">
+                    <textarea name="carFrontPhoto" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">行驶证：</label>
+                <div class="col-sm-8">
+                    <textarea name="carBackPhoto" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">人车同框：</label>
+                <div class="col-sm-8">
+                    <textarea name="carSidePhoto" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">购车日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="purchaseDate" class="form-control layui-datetime" placeholder="yyyy-MM-dd HH:mm:ss" type="text">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label is-required">所属人手机号码：</label>
+                <div class="col-sm-8">
+                    <input name="phone" class="form-control" type="text" required>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">乐观锁：</label>
+                <div class="col-sm-8">
+                    <input name="REVISION" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">创建人：</label>
+                <div class="col-sm-8">
+                    <input name="createdBy" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">创建时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="createdTime" class="form-control layui-datetime" placeholder="yyyy-MM-dd HH:mm:ss" type="text">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">更新人：</label>
+                <div class="col-sm-8">
+                    <input name="updatedBy" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">更新时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="updatedTime" class="form-control layui-datetime" placeholder="yyyy-MM-dd HH:mm:ss" type="text">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "hitch/vehicle"
+        $("#form-vehicle-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-vehicle-add').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

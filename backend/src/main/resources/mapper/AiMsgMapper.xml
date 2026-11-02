@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhijiaoyou.aichat.mapper.AiMsgMapper">
+
+    <resultMap id="BaseResultMap" type="com.zhijiaoyou.aichat.entity.po.AiMsg">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="category" jdbcType="INTEGER" property="category"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="pic" jdbcType="VARCHAR" property="pic"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="dict_label" jdbcType="VARCHAR" property="dictLabel"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zhijiaoyou.aichat.entity.po.AiMsg" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_ai_msg (category, title, pic, content, create_time, update_time)
+        VALUES (#{category}, #{title}, #{pic}, #{content}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT id, category, title, pic, content, create_time, update_time, dict_label
+        FROM v_ai_msg
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT id, category, title, pic, content, create_time, update_time, dict_label
+        FROM v_ai_msg
+        <where>
+            <if test="category != null">AND category = #{category}</if>
+            <if test="title != null and title != ''">AND title LIKE CONCAT('%', #{title}, '%')</if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <update id="updateById" parameterType="com.zhijiaoyou.aichat.entity.po.AiMsg">
+        UPDATE t_ai_msg
+        <set>
+            <if test="category != null">category = #{category},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="pic != null">pic = #{pic},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_ai_msg WHERE id = #{id}
+    </delete>
+
+</mapper>

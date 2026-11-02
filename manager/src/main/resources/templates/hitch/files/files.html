@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('文件库管理')" />
+    <link th:href="@{/css/hitch-admin.css?v=20260911}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="hitch-hero">
+        <div class="hitch-hero__icon"><i class="fa fa-file-text-o"></i></div>
+        <div class="hitch-hero__text">
+            <h2>文件库管理</h2>
+            <p>上传的文档会存到 MinIO，并由 AI 后端读取文件内容做向量化，让 AI 助手能回答景区百科类问题。</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 search-collapse hitch-search">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>文件名：</label>
+                            <input type="text" name="name" placeholder="输入文件名关键字"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-default btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="hitch:files:add">
+                <i class="fa fa-plus"></i> 上传文件
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="hitch:files:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="hitch:files:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="hitch:files:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('hitch:files:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('hitch:files:remove')}]];
+    var prefix = ctx + "hitch/files";
+
+    function escapeHtml(text) {
+        return String(text == null ? '' : text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function nameCell(value) {
+        return '<i class="fa fa-file-text-o text-primary"></i> <span class="msg-title">' + escapeHtml(value) + '</span>';
+    }
+
+    function urlCell(value) {
+        if (!value) return '<span class="text-muted">—</span>';
+        var shortUrl = value.length > 42 ? value.substring(0, 42) + '...' : value;
+        return '<a href="' + escapeHtml(value) + '" target="_blank" title="' + escapeHtml(value) + '">' + escapeHtml(shortUrl) + '</a>';
+    }
+
+    function actionCell(value, row) {
+        var actions = [];
+        if (row.url) {
+            actions.push('<a class="btn btn-info btn-xs" href="' + escapeHtml(row.url) + '" target="_blank"><i class="fa fa-external-link"></i> 打开</a> ');
+        }
+        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i> 编辑</a> ');
+        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i> 删除</a>');
+        return actions.join('');
+    }
+
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "文件库",
+            columns: [{
+                checkbox: true
+            },
+            {
+                field: 'id',
+                visible: false
+            },
+            {
+                field: 'name',
+                title: '文件名',
+                formatter: nameCell
+            },
+            {
+                field: 'url',
+                title: '文件地址',
+                formatter: urlCell
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: actionCell
+            }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

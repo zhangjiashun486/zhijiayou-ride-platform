@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('资讯库管理')" />
+    <link th:href="@{/css/hitch-admin.css?v=20260911}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="hitch-hero">
+        <div class="hitch-hero__icon"><i class="fa fa-newspaper-o"></i></div>
+        <div class="hitch-hero__text">
+            <h2>资讯库管理</h2>
+            <p>这里维护的所有资讯都会同步给 AI 助手作为知识库；新增、修改、删除后系统会自动通过消息队列通知 AI 后端更新。</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12 search-collapse hitch-search">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>分类：</label>
+                            <select name="category" th:with="type=${@dict.getType('ai_msg_category')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>标题：</label>
+                            <input type="text" name="title" placeholder="输入标题关键字"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-default btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="hitch:msg:add">
+                <i class="fa fa-plus"></i> 添加资讯
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="hitch:msg:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="hitch:msg:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="hitch:msg:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="previewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="关闭"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">资讯预览</h4>
+            </div>
+            <div class="modal-body">
+                <img id="previewImage" class="hitch-preview__img" alt="" style="display:none"/>
+                <div class="hitch-preview__meta">
+                    <span id="previewCategory" class="category-badge"></span>
+                    <span id="previewTime"></span>
+                </div>
+                <h3 id="previewTitle" class="hitch-preview__title"></h3>
+                <div id="previewContent" class="hitch-preview__content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('hitch:msg:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('hitch:msg:remove')}]];
+    var categoryDatas = [[${@dict.getType('ai_msg_category')}]];
+    var prefix = ctx + "hitch/msg";
+
+    function plainText(html) {
+        if (!html) return '';
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function escapeHtml(text) {
+        return String(text == null ? '' : text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function formatTime(value) {
+        if (!value) return '';
+        return String(value).replace('T', ' ').substring(0, 16);
+    }
+
+    function categoryBadge(value) {
+        var label = $.table.selectDictLabel(categoryDatas, value) || '未分类';
+        return '<span class="category-badge category-badge--' + value + '">' + escapeHtml(label) + '</span>';
+    }
+
+    function titleCell(value, row) {
+        return '<span class="msg-title">' + escapeHtml(value) + '</span>';
+    }
+
+    function imageCell(value) {
+        if (!value) return '<span class="text-muted">—</span>';
+        return '<img src="' + escapeHtml(value) + '" class="msg-thumb" onerror="this.style.display=\'none\'"/>';
+    }
+
+    function contentCell(value) {
+        var text = plainText(value);
+        if (text.length > 48) text = text.substring(0, 48) + '...';
+        return '<span class="msg-excerpt">' + escapeHtml(text) + '</span>';
+    }
+
+    function timeCell(value) {
+        return '<span class="text-muted">' + formatTime(value) + '</span>';
+    }
+
+    function actionCell(value, row) {
+        var actions = [];
+        actions.push('<a class="btn btn-info btn-xs" href="javascript:void(0)" onclick="previewMsg(\'' + row.id + '\')"><i class="fa fa-eye"></i> 预览</a> ');
+        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i> 编辑</a> ');
+        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i> 删除</a>');
+        return actions.join('');
+    }
+
+    var msgCache = {};
+
+    function previewMsg(id) {
+        var row = msgCache[id];
+        if (!row) return;
+        if (row.pic) {
+            $('#previewImage').attr('src', row.pic).show();
+        } else {
+            $('#previewImage').hide();
+        }
+        $('#previewCategory').html(categoryBadge(row.category));
+        $('#previewTime').text(formatTime(row.updateTime || row.createTime));
+        $('#previewTitle').text(row.title || '');
+        $('#previewContent').html(row.content || '<p class="text-muted">暂无内容</p>');
+        $('#previewModal').modal('show');
+    }
+
+    $(function() {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "资讯库",
+            columns: [{
+                checkbox: true
+            },
+            {
+                field: 'id',
+                visible: false
+            },
+            {
+                field: 'category',
+                title: '分类',
+                align: 'center',
+                formatter: categoryBadge
+            },
+            {
+                field: 'title',
+                title: '标题',
+                formatter: titleCell
+            },
+            {
+                field: 'pic',
+                title: '封面',
+                align: 'center',
+                formatter: imageCell
+            },
+            {
+                field: 'content',
+                title: '内容摘要',
+                formatter: contentCell
+            },
+            {
+                field: 'updateTime',
+                title: '更新时间',
+                align: 'center',
+                formatter: timeCell
+            },
+            {
+                title: '操作',
+                align: 'center',
+                formatter: actionCell
+            }],
+            onLoadSuccess: function(data) {
+                msgCache = {};
+                var rows = (data && data.rows) ? data.rows : [];
+                for (var i = 0; i < rows.length; i++) {
+                    msgCache[rows[i].id] = rows[i];
+                }
+            }
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

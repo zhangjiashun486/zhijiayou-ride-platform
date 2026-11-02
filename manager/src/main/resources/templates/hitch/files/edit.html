@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改文件')" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <link th:href="@{/css/hitch-admin.css?v=20260911}" rel="stylesheet"/>
+</head>
+<body class="white-bg">
+<div class="hitch-form-wrap">
+    <div class="hitch-form-head">
+        <h3><i class="fa fa-edit"></i> 修改文件</h3>
+        <p>修改保存后，AI 后端会重新读取文件内容更新向量库，保证知识是最新的。</p>
+    </div>
+
+    <form class="form-horizontal m" id="form-files-edit" th:object="${aiFiles}">
+        <input name="id" th:field="*{id}" type="hidden">
+        <div class="form-group">
+            <label class="col-sm-2 control-label">文件名：</label>
+            <div class="col-sm-9">
+                <input name="name" th:field="*{name}" class="form-control" type="text" maxlength="100" placeholder="例如：各省景点介绍"/>
+                <p class="hitch-hint">建议写清楚文件内容，方便后台检索。</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label">选择文件：</label>
+            <div class="col-sm-9">
+                <input type="hidden" name="url" th:field="*{url}">
+                <div class="file-loading">
+                    <input class="form-control file-upload" id="url" name="file" type="file">
+                </div>
+                <p class="hitch-hint">支持 md / txt / pdf / word 等文档，大小不超过 10MB。</p>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<script th:inline="javascript">
+    var prefix = ctx + "hitch/files";
+
+    $("#form-files-edit").validate({
+        rules: {
+            name: { required: true, maxlength: 100 }
+        },
+        messages: {
+            name: { required: "请填写文件名", maxlength: "文件名不能超过 100 个字" }
+        },
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            if (!$("input[name='url']").val()) {
+                $.modal.alertWarning("请先上传文件");
+                return;
+            }
+            $.operate.save(prefix + "/edit", $('#form-files-edit').serialize());
+        }
+    }
+
+    $(".file-upload").each(function () {
+        var val = $("input[name='" + this.id + "']").val();
+        $(this).fileinput({
+            uploadUrl: ctx + 'common/upload',
+            initialPreviewAsData: true,
+            initialPreview: val ? [val] : [],
+            maxFileCount: 1,
+            autoReplace: true
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            $("input[name='" + event.currentTarget.id + "']").val(data.response.url)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        });
+    })
+</script>
+</body>
+</html>

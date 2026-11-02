@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhijiaoyou.aichat.mapper.AiFilesMapper">
+
+    <resultMap id="BaseResultMap" type="com.zhijiaoyou.aichat.entity.po.AiFiles">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="url" jdbcType="VARCHAR" property="url"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.zhijiaoyou.aichat.entity.po.AiFiles" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_ai_files (name, url) VALUES (#{name}, #{url})
+    </insert>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM t_ai_files WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT * FROM t_ai_files ORDER BY id DESC
+    </select>
+
+    <update id="updateById" parameterType="com.zhijiaoyou.aichat.entity.po.AiFiles">
+        UPDATE t_ai_files
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="url != null">url = #{url},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM t_ai_files WHERE id = #{id}
+    </delete>
+
+</mapper>

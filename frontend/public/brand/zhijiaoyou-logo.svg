@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 88" role="img" aria-label="智驾游 AI 出行助手">
+  <rect x="4" y="12" width="64" height="64" rx="17" fill="#123B3A"/>
+  <path d="M19 60 C28 50 30 43 37 36 C44 29 51 26 59 20" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  <path d="M19 60 C28 50 30 43 37 36 C44 29 51 26 59 20" fill="none" stroke="#123B3A" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/>
+  <circle cx="59" cy="20" r="6" fill="#F6A83B"/>
+  <path d="M52 20 L55 23 L52 26 L55 23 L58 20 L55 17 Z" fill="#71E0C5"/>
+  <text x="86" y="50" font-family="Microsoft YaHei, PingFang SC, sans-serif" font-size="34" font-weight="700" fill="#102326">智驾游</text>
+  <text x="88" y="72" font-family="Microsoft YaHei, PingFang SC, sans-serif" font-size="14" letter-spacing="2" fill="#2F6F68">AI 出行助手</text>
+</svg>
